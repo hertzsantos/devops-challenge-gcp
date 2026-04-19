@@ -1,0 +1,3 @@
+#Apenas para dizer ao Docker que precisamos da biblioteca do Google Cloud Storage.
+
+google-cloud-storage

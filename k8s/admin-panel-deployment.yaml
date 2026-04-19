@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-panel
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin-panel
+  template:
+    metadata:
+      labels:
+        app: admin-panel
+    spec:
+      serviceAccountName: admin-panel 
+      containers:
+        - name: admin-panel
+          image: southamerica-east1-docker.pkg.dev/devops-challenge-493713/admin-panel/admin-panel:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              python app.py; 
+              echo "Aguardando para manter o container vivo..."; 
+              sleep infinity
+          ports:
+            - containerPort: 8080
+          env:
+            - name: BUCKET_NAME
+              value: "devops-challenge-493713-static"
+            - name: PROJECT_ID
+              value: "devops-challenge-493713"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-panel
+  namespace: default
+spec:
+  type: LoadBalancer 
+  selector:
+    app: admin-panel
+  ports:
+    - port: 80
+      targetPort: 8080
