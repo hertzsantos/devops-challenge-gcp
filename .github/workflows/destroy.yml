@@ -1,3 +1,4 @@
+# .github/workflows/terraform-destroy.yml
 name: Terraform Destroy
 
 on:
@@ -12,10 +13,6 @@ on:
           - gke
           - storage_cdn
           - network
-      confirm:
-        description: "Digite DESTROY para confirmar"
-        required: true
-        type: string
 
 jobs:
   terraform-destroy:
@@ -40,13 +37,6 @@ jobs:
       TF_VAR_k8s_service_account: "admin-panel"
 
     steps:
-      - name: Validar confirmação
-        run: |
-          if [ "${{ github.event.inputs.confirm }}" != "DESTROY" ]; then
-            echo "Confirmação inválida. Digite DESTROY."
-            exit 1
-          fi
-
       - name: Checkout do Código
         uses: actions/checkout@v4
 
