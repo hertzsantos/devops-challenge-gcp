@@ -31,9 +31,9 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
         working-directory: ${{ matrix.folder }}
 
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -input=false -no-color -var-file="terraform.tfvars"
         working-directory: ${{ matrix.folder }}
