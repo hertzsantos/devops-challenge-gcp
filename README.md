@@ -42,7 +42,7 @@ sequenceDiagram
 
 ### 🌐 Arquitetura de Rede
 
-![Arquitetura de Rede](docs/network-architecture.png)
+![Arquitetura de Rede](network/docs/network-architecture.png)
 
 ---
 
