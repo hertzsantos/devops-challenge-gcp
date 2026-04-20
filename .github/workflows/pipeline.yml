@@ -9,17 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Aqui listamos exatamente as pastas que você tem no seu Explorer
         folder: [network, storage_cdn, gke, workload_identity]
-    
+
     steps:
       - name: Checkout do Código
         uses: actions/checkout@v4
 
-      - name: Checkov GitHub Action
+      - name: Checkov
         uses: bridgecrewio/checkov-action@master
         with:
-          directory: terraform/${{ matrix.folder }}
+          directory: ${{ matrix.folder }}
           framework: terraform
           soft_fail: true
 
@@ -33,8 +32,8 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-        working-directory: terraform/${{ matrix.folder }}
+        working-directory: ${{ matrix.folder }}
 
       - name: Terraform Plan
         run: terraform plan
-        working-directory: terraform/${{ matrix.folder }}
+        working-directory: ${{ matrix.folder }}
