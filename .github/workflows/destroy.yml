@@ -1,18 +1,53 @@
 name: Terraform Destroy
 
 on:
-  workflow_dispatch: # Permite rodar manualmente pelo botão no GitHub
+  workflow_dispatch:
+    inputs:
+      folder:
+        description: "Pasta Terraform para destruir"
+        required: true
+        type: choice
+        options:
+          - workload_identity
+          - gke
+          - storage_cdn
+          - network
+      confirm:
+        description: "Digite DESTROY para confirmar"
+        required: true
+        type: string
 
 jobs:
-  destroy:
+  terraform-destroy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # A ordem inversa importa! Primeiro deletamos o que depende da rede.
-        folder: [gke, workload_identity, storage_cdn, network]
-    
+
+    env:
+      TF_VAR_project_id: "devops-challenge-493713"
+      TF_VAR_region: "southamerica-east1"
+
+      TF_VAR_network_name: "demo-network"
+      TF_VAR_network: "demo-network"
+      TF_VAR_private_subnet: "demo-network-private"
+      TF_VAR_pods_range_name: "gke-pods"
+      TF_VAR_services_range_name: "gke-services"
+
+      TF_VAR_bucket_name: "devops-challenge-493713-static"
+      TF_VAR_bucket_role: "roles/storage.objectAdmin"
+
+      TF_VAR_gsa_name: "admin-uploader"
+      TF_VAR_gsa_display_name: "Service account for admin uploads"
+      TF_VAR_k8s_namespace: "default"
+      TF_VAR_k8s_service_account: "admin-panel"
+
     steps:
-      - name: Checkout
+      - name: Validar confirmação
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "DESTROY" ]; then
+            echo "Confirmação inválida. Digite DESTROY."
+            exit 1
+          fi
+
+      - name: Checkout do Código
         uses: actions/checkout@v4
 
       - name: Google Auth
@@ -23,8 +58,10 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Terraform Init
+        run: terraform init -input=false -no-color
+        working-directory: ${{ github.event.inputs.folder }}
+
       - name: Terraform Destroy
-        run: |
-          cd ${{ matrix.folder }}
-          terraform init
-          terraform destroy -auto-approve -var-file=terraform.tfvars
+        run: terraform destroy -auto-approve -input=false -no-color
+        working-directory: ${{ github.event.inputs.folder }}
